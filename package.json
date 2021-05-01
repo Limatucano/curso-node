@@ -1,0 +1,25 @@
+{
+  "name": "rest-api",
+  "version": "1.0.0",
+  "description": "Estudando REST API ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Limatucano/curso-node.git"
+  },
+  "keywords": [
+    "node"
+  ],
+  "author": "Matheus Lima Correa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Limatucano/curso-node/issues"
+  },
+  "homepage": "https://github.com/Limatucano/curso-node#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}

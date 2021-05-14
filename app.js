@@ -13,6 +13,23 @@ app.use(bodyParser.urlencoded({ extended: false }));
 //só aceitando formato json
 app.use(bodyParser.json());
 
+app.use((req, res, next) => {
+    //permite o acesso por parte de todos servidores, caso quisessemos delimitar, no segundo parametro setariamos o servidor que teria acesso
+    res.header('Access-Control-Allow-Origin', '*');
+    //O que iremos permitir de header
+    res.header(
+        'Access-Control-Allow-Header', 
+        'Content-Type, Origin, X-Requested-With, Accept, Authorization'
+            );
+    //setamos quais metodos serao aceitos
+    if(req.method === "OPTIONS"){
+        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+        return res.status(200).send({});
+    }
+
+    next();
+    
+});
 app.use('/pedidos', rotaPedidos);
 app.use('/produtos', rotaProdutos);
 

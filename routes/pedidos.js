@@ -4,8 +4,8 @@ const router = express.Router();
 
 router.post('/', (req,res, next)=>{
     const pedido = {
-        numero : req.body.numero,
-        valor  : req.body.valor
+        id_produto : req.body.id_produto,
+        quantidade : req.body.quantidade
     }
     res.status(200).send({
         mensagem: "post aqui",

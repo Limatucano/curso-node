@@ -1,11 +1,18 @@
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
+const bodyParser = require('body-parser');
+
 const rotaProdutos = require('./routes/produtos');
 const rotaPedidos  = require('./routes/pedidos');
 
 //dependencia que monitora as requisições e retorna (o verbo, /o endpoint, status, tempo em milisegundos e tamanho em caractere do que foi enviado para o client)
 app.use(morgan('dev'));
+//aceitando apenas dados simples
+app.use(bodyParser.urlencoded({ extended: false }));
+//só aceitando formato json
+app.use(bodyParser.json());
+
 app.use('/pedidos', rotaPedidos);
 app.use('/produtos', rotaProdutos);
 

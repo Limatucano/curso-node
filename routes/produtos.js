@@ -81,6 +81,7 @@ router.get('/:id_produto', (req, res, next)=>{
 });
 
 router.patch('/', (req, res, next)=>{
+    if(error){return res.status(500).send({error: error})}
     const {id_produto, nome, preco} = req.body;
     mysql.getConnection((error, connection)=>{
         connection.query(
@@ -94,7 +95,7 @@ router.patch('/', (req, res, next)=>{
                         error: error,
                     })
                 }
-                res.status(200).send({
+                res.status(202).send({
                     message: resultado,
                 })
             }
@@ -117,7 +118,7 @@ router.delete('/:id_produto', (req, res, next)=>{
                         error: error
                     })
                 }
-                res.status(204).send({
+                res.status(202).send({
                     message: "deletado com sucesso",
                 })
             }

@@ -81,9 +81,24 @@ router.get('/:id_produto', (req, res, next)=>{
 });
 
 router.patch('/', (req, res, next)=>{
-    //UPDATE users SET name = $1, email = $2 WHERE id = $3'
-    res.status(200).send({
-        mensagem: `patch ai`
+    const {id_produto, nome, preco} = req.body;
+    mysql.getConnection((error, connection)=>{
+        connection.query(
+            'UPDATE produtos SET nome = ?, preco = ? WHERE id_produto = ?',
+            [nome, preco,id_produto],
+            (error, resultado, field)=>{
+                connection.release();
+
+                if(error){
+                    res.status(500).send({
+                        error: error,
+                    })
+                }
+                res.status(200).send({
+                    message: resultado,
+                })
+            }
+        )
     })
 });
 

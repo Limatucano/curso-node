@@ -168,8 +168,21 @@ router.delete('/:id_produto', (req, res, next)=>{
                         error: error
                     })
                 }
+                const response = {
+                    mensagem: "produto deletado com sucesso",
+                    id_produto: req.params.id_produto,
+                    request:{
+                        tipo:"POST",
+                        descricao:"insere um produto",
+                        url:"http://localhost:3000/produtos/",
+                        body:{
+                            nome: "String",
+                            preco: "Number",
+                        }
+                    }
+                }
                 res.status(202).send({
-                    message: "deletado com sucesso",
+                    response,
                 })
             }
         )

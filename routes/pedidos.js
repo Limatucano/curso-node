@@ -138,5 +138,40 @@ router.patch('/', (req, res, next)=>{
     })
 });
 
+router.delete('/:id_pedido', (req, res, next)=>{
+
+    const id_pedido = req.params.id_pedido;
+
+    mysql.getConnection((error, connection)=>{
+        if(error) {return res.status(500).send({error:error})}
+        connection.query(
+            'DELETE FROM pedidos where id_pedido = ?',
+            [id_pedido],
+            (error, result, field)=>{
+                connection.release();
+                if(error) {
+                    return res.status(500).send({error:error})
+                };
+
+                const response = {
+                    mensagem: "pedido deletado com sucesso",
+                    id_pedido: id_pedido,
+                    request: {
+                        tipo: "POST",
+                        descricao: "Insere um novo pedido",
+                        url: "http://localhost:3000/pedidos/",
+                        body:{
+                            id_produto: "Number", 
+                            quantidade: "Number",
+                        }
+                    }
+                }
+                res.status(202).send({response})
+            }
+        )
+    })
+
+})
+
 
 module.exports = router;

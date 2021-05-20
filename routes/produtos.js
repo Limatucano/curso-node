@@ -8,7 +8,7 @@ router.get('/', (req, res, next)=>{
         if(error){return res.status(500).send({error:error})}
         connection.query(
             'SELECT * FROM produtos',
-            (error, resultado, field)=>{
+            (error, result, field)=>{
                 connection.release();
 
                 if(error){
@@ -16,8 +16,23 @@ router.get('/', (req, res, next)=>{
                         error: error,
                     })
                 }
+                const response = {
+                    quantidade: result.length,
+                    produtos: result.map(prod =>{
+                        return {
+                            id_produto: prod.id_produto,
+                            nome: prod.nome, 
+                            preco: prod.preco,
+                            request: {
+                                tipo: 'GET',
+                                descricao: 'Retorna todos os produtos, para saber mais use a chave url',
+                                url: 'http://localhost:3000/produtos/'+prod.id_produto,
+                            }
+                        }
+                    })
+                }
                 res.status(200).send({
-                    message:resultado,
+                    response,
                 });
             }
         )
@@ -45,11 +60,20 @@ router.post('/', (req, res, next)=>{
                         response:null
                     });
                 }
-
-                res.status(201).send({
-                    mensagem: "Produto inserido com sucesso",
-                    produto: resultado.insertId,
-                })
+                const response = {
+                    mensagem: 'produto inserido com sucesso',
+                    IdProdutoCriado: {
+                        id: resultado.id_produto,
+                        nome: req.body.nome, 
+                        preco: req.body.preco,
+                        request: {
+                            tipo: 'POST',
+                            descricao: 'Cria um novo produto',
+                            url: 'http://localhost:3000/produtos/'
+                        }
+                    }
+                }
+                res.status(201).send({response});
             }
         )
     })
@@ -72,8 +96,24 @@ router.get('/:id_produto', (req, res, next)=>{
                         error: error,
                     });
                 }
+                if(resultado[0] == undefined){
+                    return res.status(404).send({
+                        mensagem: "Não encontrado produto com este ID"
+                    });
+
+                }
+                const response = {
+                    id_produto: resultado[0].id_produto,
+                    nome : resultado[0].nome, 
+                    preco: resultado[0].preco,
+                    request: {
+                        tipo: "GET",
+                        descricao: "Traz um produto especifico pelo ID",
+                        url : "http://localhost:3000/produtos/",
+                    }
+                }
                 res.status(200).send({
-                    message: resultado
+                    response
                 })
             }
         )
@@ -81,22 +121,32 @@ router.get('/:id_produto', (req, res, next)=>{
 });
 
 router.patch('/', (req, res, next)=>{
-    if(error){return res.status(500).send({error: error})}
     const {id_produto, nome, preco} = req.body;
     mysql.getConnection((error, connection)=>{
+        if(error){return res.status(501).send({error: error})}
         connection.query(
             'UPDATE produtos SET nome = ?, preco = ? WHERE id_produto = ?',
             [nome, preco,id_produto],
-            (error, resultado, field)=>{
+            (error, result, field)=>{
                 connection.release();
-
                 if(error){
                     res.status(500).send({
                         error: error,
                     })
                 }
+                const response = {
+                    mensagem:"produto atualizado com sucesso",
+                    id_produto: req.body.id_produto,
+                    nome : req.body.nome,
+                    preco: req.body.preco,
+                    request: {
+                        tipo: "GET",
+                        descricao: "Lista detalhe do item adicionado",
+                        url: "http://localhost:3000/produtos/"+req.body.id_produto
+                    }
+                }
                 res.status(202).send({
-                    message: resultado,
+                    response,
                 })
             }
         )

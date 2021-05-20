@@ -107,6 +107,36 @@ router.get('/:id_pedido',(req, res, next)=>{
     })
 });
 
+router.patch('/', (req, res, next)=>{
+    const {id_pedido, id_produto, quantidade} = req.body;
+    mysql.getConnection((error, connection)=>{
+        if(error) return res.status(500).send({error:error})
+        connection.query(
+            'UPDATE pedidos SET id_produto = ?, quantidade = ? WHERE id_pedido = ?',
+            [id_produto, quantidade, id_pedido],
+            (error, result, field)=>{
+                connection.release();
+                if(error) {
+                    return res.status(500).send({error:error})
+                }
+
+                const response = {
+                    mensagem: "Pedido atualizado com sucesso",
+                    id_pedido: id_pedido,
+                    id_produto: id_produto,
+                    quantidade: quantidade,
+                    request: {
+                        tipo: "GET",
+                        descricao: "Permite visualizar detalhe do pedido atualizado",
+                        url: "http://localhost:3000/pedidos/" + id_pedido
+                    }
+                }
+
+                res.status(202).send({response})
+            }
+        )
+    })
+});
 
 
 module.exports = router;

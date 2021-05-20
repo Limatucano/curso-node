@@ -40,9 +40,20 @@ router.get('/', (req,res, next)=>{
 });
 router.post('/', (req, res, next)=>{
     const {id_produto, quantidade} = req.body;
-
     mysql.getConnection((error, connection)=>{
-        if(error) {return res.status(500).send({error:error})};
+        if(error) {return res.status(500).send({error:error})}
+        connection.query(
+            'SELECT * FROM produtos WHERE id_produto = ?', 
+            [id_produto], 
+            (error, result, field)=>{
+                if(error){return res.status(500).send({error:error})}
+                if(result.length == 0){
+                    return res.status(404).send({
+                        mensagem: "Não encontrado produto com este ID"
+                    })
+                }
+            }
+        )
         connection.query(
             'INSERT INTO pedidos (id_produto,quantidade) VALUES (?,?)',
             [id_produto,quantidade],

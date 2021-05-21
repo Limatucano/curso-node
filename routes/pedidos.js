@@ -7,7 +7,7 @@ router.get('/', (req,res, next)=>{
     mysql.getConnection((error, connection)=>{
         if(error){return res.status(500).send({error:error})}
         connection.query(
-            'SELECT * FROM pedidos',
+            'SELECT pe.*, po.*  FROM pedidos as pe inner join produtos as po on pe.id_produto = po.id_produto',
             (error, result, field)=>{
                 connection.release();
 
@@ -21,8 +21,12 @@ router.get('/', (req,res, next)=>{
                     pedidos: result.map(order =>{
                         return {
                             id_pedido: order.id_pedido,
-                            id_produto: order.id_produto,
                             quantidade: order.quantidade,
+                            produto: {
+                                id_produto: order.id_produto,
+                                nome: order.nome, 
+                                preco: order.preco
+                            },
                             request: {
                                 tipo: "GET",
                                 descricao: 'Retorna o detalhe do pedido',

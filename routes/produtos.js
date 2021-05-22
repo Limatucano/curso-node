@@ -153,13 +153,14 @@ router.get('/:id_produto', (req, res, next)=>{
     });
 });
 
-router.patch('/', (req, res, next)=>{
+router.patch('/',upload.single('produto_imagem'), (req, res, next)=>{
     const {id_produto, nome, preco} = req.body;
+    const imagem_produto = req.file.path;
     mysql.getConnection((error, connection)=>{
         if(error){return res.status(501).send({error: error})}
         connection.query(
-            'UPDATE produtos SET nome = ?, preco = ? WHERE id_produto = ?',
-            [nome, preco,id_produto],
+            'UPDATE produtos SET nome = ?, preco = ?, imagem_produto = ? WHERE id_produto = ?',
+            [nome, preco, imagem_produto,id_produto],
             (error, result, field)=>{
                 connection.release();
                 if(error){
@@ -172,6 +173,7 @@ router.patch('/', (req, res, next)=>{
                     id_produto: req.body.id_produto,
                     nome : req.body.nome,
                     preco: req.body.preco,
+                    url_imagem: req.file.path,
                     request: {
                         tipo: "GET",
                         descricao: "Lista detalhe do item adicionado",

@@ -8,6 +8,8 @@ const rotaPedidos  = require('./routes/pedidos');
 
 //dependencia que monitora as requisições e retorna (o verbo, /o endpoint, status, tempo em milisegundos e tamanho em caractere do que foi enviado para o client)
 app.use(morgan('dev'));
+//disponibiliza a imagem publicamente
+app.use('/uploads',express.static('uploads'));
 //aceitando apenas dados simples
 app.use(bodyParser.urlencoded({ extended: false }));
 //só aceitando formato json

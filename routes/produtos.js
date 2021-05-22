@@ -1,6 +1,35 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: function (req, file ,cb) {
+        cb(null, './uploads/');
+    },
+    filename: function (req, file, cb) {
+        let data = new Date().toISOString().replace(/:/g,'-')+'-';
+        cb(null, data + file.originalname);
+    }
+
+});
+
+const fileFilter = (req, file, cb) =>{
+    if(file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'){
+        cb(null,true);
+    }else{
+        cb(null,false);
+    }
+    
+}
+
+const upload = multer({
+    storage: storage,
+    limit: {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter: fileFilter,
+});
 
 router.get('/', (req, res, next)=>{
 
@@ -19,10 +48,11 @@ router.get('/', (req, res, next)=>{
                 const response = {
                     quantidade: result.length,
                     produtos: result.map(prod =>{
-                        return {
+                        return { 
                             id_produto: prod.id_produto,
                             nome: prod.nome, 
                             preco: prod.preco,
+                            url_imagem: prod.imagem_produto,
                             request: {
                                 tipo: 'GET',
                                 descricao: 'Retorna todos os produtos, para saber mais use a chave url',
@@ -39,18 +69,19 @@ router.get('/', (req, res, next)=>{
     });
 });
 
-router.post('/', (req, res, next)=>{
-
+router.post('/',upload.single('produto_imagem'), (req, res, next)=>{
+    if(!req.file){return res.status(406).send({message:"imagem inválida"})};
     const produto = {
         nome: req.body.nome,
         preco: req.body.preco,
+        file: req.file.path,
     };
 
     mysql.getConnection((error, connection)=>{
         if(error){return res.status(500).send({error:error})}
         connection.query(
-            'INSERT INTO produtos (nome, preco) VALUES (?, ?)',
-            [produto.nome, produto.preco],
+            'INSERT INTO produtos (nome, preco, imagem_produto) VALUES (?, ?, ?)',
+            [produto.nome, produto.preco, produto.file],
             (error, resultado, field) =>{
                 connection.release();
 
@@ -66,6 +97,7 @@ router.post('/', (req, res, next)=>{
                         id: resultado.id_produto,
                         nome: req.body.nome, 
                         preco: req.body.preco,
+                        url_imagem: req.file.path,
                         request: {
                             tipo: 'POST',
                             descricao: 'Cria um novo produto',
@@ -106,6 +138,7 @@ router.get('/:id_produto', (req, res, next)=>{
                     id_produto: resultado[0].id_produto,
                     nome : resultado[0].nome, 
                     preco: resultado[0].preco,
+                    url_imagem : resultado[0].imagem_produto,
                     request: {
                         tipo: "GET",
                         descricao: "Traz um produto especifico pelo ID",

@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const rotaProdutos = require('./routes/produtos');
 const rotaPedidos  = require('./routes/pedidos');
+const rotaUsuarios  = require('./routes/usuarios');
 
 //dependencia que monitora as requisições e retorna (o verbo, /o endpoint, status, tempo em milisegundos e tamanho em caractere do que foi enviado para o client)
 app.use(morgan('dev'));
@@ -34,7 +35,7 @@ app.use((req, res, next) => {
 });
 app.use('/pedidos', rotaPedidos);
 app.use('/produtos', rotaProdutos);
-
+app.use('/usuarios', rotaUsuarios);
 //quando não encontrar as rotas citadas acima, exibe mensagem de erro
 app.use((req, res, next)=>{
     const erro = new Error('URL desconhecida por nós');

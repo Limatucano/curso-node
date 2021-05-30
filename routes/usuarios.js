@@ -40,7 +40,32 @@ router.post('/cadastro', (req, res, next) => {
         )
 
     })
-})
+});
+
+router.post('/login', (req, res, next)=>{
+    const notAuthorized = res.status(401).send({mensagem:"Falha na autenticação"});
+    mysql.getConnection((error, connection)=>{
+        if(error) {return res.status(500).send({error:error})}
+        const query = `SELECT * FROM usuarios WHERE email = ?`;
+        connection.query(query,
+            [req.body.email],
+            (error, results, field)=>{
+                connection.release();
+                if(error) {return res.status(500).send({error:error})}
+                if(results.length < 1) {
+                    return notAuthorized;
+                }
+                bcrypt.compare(req.body.senha, results[0].senha, (err, result)=>{
+                    if(err) {return notAuthorized;}
+                    if(result){
+                        return res.status(200).send({mensagem: "Autenticado com sucesso"});
+                    }else{
+                        return notAuthorized;
+                    }
+                });
+            });
+    });
+});
 
 
 module.exports = router;

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('../mysql').pool;
 const multer = require('multer');
+const login = require('../middleware/login');
 
 const storage = multer.diskStorage({
     destination: function (req, file ,cb) {
@@ -69,8 +70,12 @@ router.get('/', (req, res, next)=>{
     });
 });
 
-router.post('/',upload.single('produto_imagem'), (req, res, next)=>{
+router.post('/',login.obrigatorio , upload.single('produto_imagem'), (req, res, next)=>{
     if(!req.file){return res.status(406).send({message:"imagem inválida"})};
+    const usuario = {
+        id_usuario: req.usuario.id_usuario,
+        email: req.usuario.email,
+    }
     const produto = {
         nome: req.body.nome,
         preco: req.body.preco,
@@ -153,7 +158,7 @@ router.get('/:id_produto', (req, res, next)=>{
     });
 });
 
-router.patch('/',upload.single('produto_imagem'), (req, res, next)=>{
+router.patch('/',login.obrigatorio, upload.single('produto_imagem'), (req, res, next)=>{
     const {id_produto, nome, preco} = req.body;
     const imagem_produto = req.file.path;
     mysql.getConnection((error, connection)=>{
@@ -189,7 +194,7 @@ router.patch('/',upload.single('produto_imagem'), (req, res, next)=>{
 });
 
 
-router.delete('/:id_produto', (req, res, next)=>{
+router.delete('/:id_produto',login.obrigatorio, (req, res, next)=>{
     const id_produto = req.params.id_produto;
     mysql.getConnection((error, connection)=>{
 

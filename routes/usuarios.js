@@ -68,8 +68,7 @@ router.post('/login', (req, res, next)=>{
                         return res.status(200).send({mensagem:"Autenticado com sucesso", token:token})
                     }else{
                         return res.status(401).send({mensagem:"Falha na autenticação"});
-                    }
-                     
+                    }   
                 });
             });
     });
